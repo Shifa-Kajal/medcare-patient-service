@@ -3,6 +3,7 @@ package com.medcare.patient.service;
 import com.medcare.patient.dto.PatientCreateRequest;
 import com.medcare.patient.dto.PatientResponse;
 import com.medcare.patient.exceptions.DuplicateMrnException;
+import com.medcare.patient.exceptions.PatientNotFoundException;
 import com.medcare.patient.mapper.PatientMapper;
 import com.medcare.patient.model.Patient;
 import com.medcare.patient.repository.PatientRepository;
@@ -23,6 +24,7 @@ public class PatientServiceImpl implements PatientService{
     private final PatientMapper patientMapper;
 
     @Override
+    @Transactional
     public PatientResponse createPatient(PatientCreateRequest request) {
         if(patientRepository.existsByMrn(request.mrn())){
             throw new DuplicateMrnException("MRN already exists: " + request.mrn());
@@ -48,21 +50,29 @@ public class PatientServiceImpl implements PatientService{
 
     @Override
     public PatientResponse getPatientById(UUID id) {
-        return null;
+        return patientRepository.findById(id)
+                .map(patientMapper::toResponse)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with this id not found: " + id));
     }
 
     @Override
     public PatientResponse getPatientByMrn(String mrn) {
-        return null;
+        return patientRepository.findByMrn(mrn)
+                .map(patientMapper::toResponse)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with this Mrn not found: " + mrn));
     }
 
     @Override
     public void deactivatePatient(UUID id) {
-
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with this Id is not found: " + id));
+        patient.deactivate();
     }
 
     @Override
     public void markPatientDeceased(UUID id) {
-
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with this Id is not found: " + id));
+        patient.markDeceased();
     }
 }
