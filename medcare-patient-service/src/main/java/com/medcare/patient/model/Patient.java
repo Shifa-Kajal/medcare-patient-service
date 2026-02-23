@@ -12,8 +12,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "patients",
@@ -26,49 +25,69 @@ public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
-    @Setter(AccessLevel.NONE)
     private UUID id;
 
-    @NotBlank
-    @Size(max = 40)
     @Column(nullable = false, length = 40, unique = true, updatable = false)
-    @Setter(AccessLevel.NONE)
     private String mrn;
 
-    @NotBlank
-    @Size(max = 80)
     @Column(nullable = false, length = 80)
     private String firstName;
 
-    @NotBlank
-    @Size(max = 80)
     @Column(nullable = false, length = 80)
     private String lastName;
 
-    @Email
     @Column(length = 120, unique = true)
     private String email;
 
     @Column(length = 30)
     private String phoneNumber;
 
-    @PastOrPresent
-    @NotNull
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Status patientStatus = Status.ACTIVE;
+    private PatientStatus patientStatus;
 
     @Version
-    @Setter(AccessLevel.NONE)
     private Long version;
 
     @CreatedDate
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @LastModifiedDate
+    @Column(nullable = false)
     private Instant updatedAt;
+
+    public static Patient create(String mrn, String firstName, String lastName, LocalDate dateOfBirth, String email, String phoneNumber) {
+        Patient patient = new Patient();
+        patient.mrn = mrn;
+        patient.firstName = firstName;
+        patient.lastName = lastName;
+        patient.dateOfBirth = dateOfBirth;
+        patient.email = email;
+        patient.phoneNumber = phoneNumber;
+        patient.patientStatus = PatientStatus.ACTIVE;
+        return patient;
+    }
+
+
+    public void deactivate(){
+        if(this.patientStatus == PatientStatus.DECEASED) {
+            throw new IllegalStateException("Cannot deactivate a deceased patient record");
+        }
+        this.patientStatus = PatientStatus.INACTIVE;
+    }
+
+    public void markDeceased(){
+        this.patientStatus = PatientStatus.DECEASED;
+    }
+
+    public void reactivate(){
+    if(this.patientStatus == PatientStatus.DECEASED) {
+        throw new IllegalStateException("Cannot reactivate a deceased patient record");
+    }
+        this.patientStatus = PatientStatus.ACTIVE;
+    }
 }
