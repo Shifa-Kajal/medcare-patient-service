@@ -6,7 +6,6 @@ import com.medcare.patient.service.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -21,7 +20,7 @@ public class PatientController {
     private final PatientService patientService;
 
     @PostMapping
-    public ResponseEntity<PatientResponse> createPatient(@Valid @RequestBody PatientCreateRequest request){
+    public ResponseEntity<PatientResponse> createPatient(@Valid @RequestBody PatientCreateRequest request) {
         PatientResponse response = patientService.createPatient(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -47,7 +46,7 @@ public class PatientController {
     }
 
     @PatchMapping("/{id}/deceased")
-    public ResponseEntity<PatientResponse> markDeceased(@PathVariable UUID id){
+    public ResponseEntity<PatientResponse> markDeceased(@PathVariable UUID id) {
         patientService.markPatientDeceased(id);
         return ResponseEntity.noContent().build();
     }

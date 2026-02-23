@@ -18,7 +18,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class PatientServiceImpl implements PatientService{
+public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
@@ -26,10 +26,10 @@ public class PatientServiceImpl implements PatientService{
     @Override
     @Transactional
     public PatientResponse createPatient(PatientCreateRequest request) {
-        if(patientRepository.existsByMrn(request.mrn())){
+        if (patientRepository.existsByMrn(request.mrn())) {
             throw new DuplicateMrnException("MRN already exists: " + request.mrn());
         }
-        if(request.email() != null && patientRepository.existsByEmail(request.email())){
+        if (request.email() != null && patientRepository.existsByEmail(request.email())) {
             throw new DuplicateMrnException("MRN already exists: " + request.mrn());
         }
 
